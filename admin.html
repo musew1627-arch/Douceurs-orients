@@ -343,38 +343,57 @@ function renderSettings(){
 
 /* ================= ENREGISTRER ================= */
 function saveAll(){
-  const products = [...document.querySelectorAll('.pcard')].map(card => {
-    const v = f => card.querySelector(`[data-f="${f}"]`).value;
-    const imgUrl = v('imgUrl').trim();
-    return {
-      id: card.dataset.id,
-      name: v('name').trim(),
-      desc: v('desc').trim(),
-      cat: v('cat'),
-      badge: v('badge'),
-      rating: '★★★★★',
-      img: imgUrl || v('imgKey'),
-      prices: { '250g': Math.max(0,+v('p250')||0), '500g': Math.max(0,+v('p500')||0), '1kg': Math.max(0,+v('p1kg')||0) }
-    };
-  });
-  if (products.some(p=>!p.name)) { toast('Chaque produit doit avoir un nom.'); return; }
-  if (products.some(p=>!p.img)) { toast('Chaque produit doit avoir une image.'); return; }
-  const fees = {};
-  document.querySelectorAll('#feeGrid input').forEach(inp => fees[inp.dataset.city] = Math.max(0,+inp.value||0));
-  const settings = {
-    storeName: $('setName').value.trim(),
-    whatsapp: $('setWa').value.replace(/\D/g,''),
-    announcement: $('setAnn').value,
-    freeShipping: Math.max(0,+$('setFree').value||0),
-    promoCode: $('setPromo').value.trim().toUpperCase(),
-    promoPct: Math.min(90, Math.max(0,+$('setPct').value||0)),
-    fees
+  const btn = $('saveBtn');
+  btn.disabled = true; $('saveMsg').textContent = '';
+  const done = (ok, msg) => {
+    btn.disabled = false;
+    if (msg) toast(msg);
+    if (ok) $('saveMsg').textContent = 'Enregistre \u2713';
   };
-  $('saveBtn').disabled = true; $('saveMsg').textContent = '';
-  firebase.database().ref('/shop').set({ products, settings })
-    .then(() => { toast('Enregistré avec succès'); $('saveMsg').textContent = 'Enregistré ✓'; })
-    .catch(e => toast('Erreur : ' + e.message))
-    .finally(() => { $('saveBtn').disabled = false; });
+  try {
+    const cards = [...document.querySelectorAll('.pcard')];
+    if (!cards.length) { done(false, 'Aucun produit affiche. Rechargez la page.'); return; }
+    const products = cards.map(card => {
+      const q = f => card.querySelector('[data-f="' + f + '"]');
+      const val = f => { const el = q(f); if (!el) throw new Error('Champ manquant: ' + f); return el.value; };
+      const imgUrl = val('imgUrl').trim();
+      return {
+        id: card.dataset.id,
+        name: val('name').trim(),
+        desc: val('desc').trim(),
+        cat: val('cat'),
+        badge: val('badge'),
+        rating: '\u2605\u2605\u2605\u2605\u2605',
+        img: imgUrl || val('imgKey'),
+        prices: { '250g': Math.max(0,+val('p250')||0), '500g': Math.max(0,+val('p500')||0), '1kg': Math.max(0,+val('p1kg')||0) }
+      };
+    });
+    if (products.some(p=>!p.name)) { done(false, 'Chaque produit doit avoir un nom.'); return; }
+    if (products.some(p=>!p.img)) { done(false, 'Chaque produit doit avoir une image.'); return; }
+    const fees = {};
+    document.querySelectorAll('#feeGrid input').forEach(inp => fees[inp.dataset.city] = Math.max(0,+inp.value||0));
+    const settings = {
+      storeName: $('setName').value.trim(),
+      whatsapp: $('setWa').value.replace(/\D/g,''),
+      announcement: $('setAnn').value,
+      freeShipping: Math.max(0,+$('setFree').value||0),
+      promoCode: $('setPromo').value.trim().toUpperCase(),
+      promoPct: Math.min(90, Math.max(0,+$('setPct').value||0)),
+      fees
+    };
+    toast('Enregistrement en cours...');
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT')), 25000));
+    Promise.race([firebase.database().ref('/shop').set({ products, settings }), timeout])
+      .then(() => done(true, 'Enregistre avec succes \u2713'))
+      .catch(e => {
+        if (e && e.message === 'TIMEOUT')
+          done(false, 'Pas de reponse de la base de donnees. Verifiez votre connexion internet puis reessayez.');
+        else
+          done(false, 'Erreur : ' + (e && e.message ? e.message : e));
+      });
+  } catch(e) {
+    done(false, 'Erreur : ' + (e && e.message ? e.message : e));
+  }
 }
 </script>
 </body>
