@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administration — Les Douceurs d'Orient</title>
+<style>
+  :root {
+    --ink: #2A1A0C; --brown: #6B4226; --gold: #D9A441; --gold-d: #B07E1F;
+    --cream: #FFF9F0; --sand: #F9EDD8; --muted: #9A7B58; --white: #fff;
+    --green: #1F9D55; --red: #B4432F;
+    --amber: #E8862E; --amber-d: #C96A1B; --cocoa: #4A2C17;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--cream); color: var(--ink); padding: 1.5rem 1rem 6rem; }
+  h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  .card { background: #fff; border: 1px solid #F0E4CE; border-radius: 18px;
+    box-shadow: 0 8px 26px rgba(46,28,16,0.08); padding: 2rem; margin-bottom: 1.2rem; }
+  .login-card { max-width: 460px; margin: 4rem auto; text-align: center; }
+  .login-card h1 { margin-bottom: 0.3rem; }
+  .sub { color: var(--muted); margin-bottom: 1.4rem; }
+  label { display: block; text-align: left; font-size: 0.85rem; font-weight: 600;
+    color: var(--brown); margin: 0.9rem 0 0.3rem; }
+  input, textarea, select { width: 100%; padding: 0.7rem 0.9rem; border-radius: 12px;
+    border: 1.5px solid #E2CFAE; font-size: 0.95rem; font-family: inherit;
+    background: #fff; color: var(--ink); outline: none; }
+  input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+  textarea { resize: vertical; }
+  .btn { display: inline-block; background: var(--ink); color: #fff; border: none;
+    padding: 0.9rem 2rem; border-radius: 99px; font-weight: 700; font-size: 1rem;
+    cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(46,28,16,0.25); }
+  .btn-gold { background: linear-gradient(135deg, var(--amber), var(--amber-d)); color: #fff;
+    box-shadow: 0 8px 22px rgba(232,134,46,0.35); }
+  .btn-outline { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  .btn:disabled { opacity: 0.5; cursor: wait; transform: none; }
+  .login-card .btn { width: 100%; margin-top: 1.2rem; }
+  .err { color: var(--red); font-size: 0.85rem; margin-top: 0.8rem; min-height: 1.2rem; }
+  .notice { background: var(--sand); border: 1px solid #EBDCC4; border-radius: 14px;
+    padding: 1.2rem 1.4rem; text-align: left; font-size: 0.92rem; line-height: 1.6; }
+  .notice b.t { display: block; font-size: 1.05rem; margin-bottom: 0.5rem; }
+  .notice ol { margin: 0.6rem 0 0 1.2rem; }
+  .notice li { margin-bottom: 0.5rem; }
+  .notice code { background: #fff; border: 1px solid #E2CFAE; border-radius: 6px;
+    padding: 0.1rem 0.4rem; font-size: 0.8rem; word-break: break-all; }
+  .admin-head { display: flex; justify-content: space-between; align-items: center;
+    gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+  .admin-head p { color: var(--muted); }
+  .tabs { display: flex; gap: 0.6rem; margin-bottom: 1.2rem; }
+  .tabs button { flex: 1; padding: 0.8rem; border-radius: 14px; border: 1.5px solid #E2CFAE;
+    background: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; color: var(--ink); }
+  .tabs button.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .pcard { background: #fff; border: 1px solid #F0E4CE; border-radius: 18px;
+    box-shadow: 0 8px 26px rgba(46,28,16,0.08); padding: 1.4rem; margin-bottom: 1rem; }
+  .pcard-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+  .pcard-head b { font-family: Georgia, serif; font-size: 1.05rem; color: var(--amber-d); }
+  .danger { background: none; border: 1px solid var(--red); color: var(--red);
+    border-radius: 99px; padding: 0.35rem 0.9rem; font-size: 0.82rem; cursor: pointer; font-weight: 600; }
+  .danger:hover { background: var(--red); color: #fff; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; }
+  .pimg { width: 90px; height: 90px; object-fit: cover; border-radius: 12px;
+    border: 1px solid #EBDCC4; margin-top: 1.75rem; background: var(--sand); }
+  .imgrow { display: flex; gap: 0.8rem; align-items: flex-start; }
+  .imgrow label { flex: 1; }
+  .hint { font-size: 0.78rem; color: var(--muted); font-weight: 400; }
+  .dashed { width: 100%; border-style: dashed; margin-bottom: 1rem; }
+  .fee-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+  .savebar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,251,244,0.97);
+    border-top: 1px solid #EBDCC4; padding: 0.9rem 1.2rem; display: flex;
+    align-items: center; justify-content: center; gap: 1rem; z-index: 50; }
+  #saveMsg { font-size: 0.9rem; color: var(--green); font-weight: 600; }
+  .toast { position: fixed; bottom: 5.5rem; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; padding: 0.85rem 1.6rem; border-radius: 99px;
+    font-weight: 600; font-size: 0.92rem; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s; z-index: 100; max-width: 90vw; text-align: center; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  h3.sect { margin: 1.2rem 0 0.2rem; font-size: 1.05rem; }
+  @media (max-width: 560px) {
+    .row2, .row3, .fee-grid { grid-template-columns: 1fr 1fr; }
+    .card, .pcard { padding: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ CONNEXION ============ -->
+  <div class="card login-card" id="loginView">
+    <h1>🍯 Administration</h1>
+    <p class="sub">Gérez votre boutique en ligne</p>
+    <div class="notice" id="setupNotice" style="display:none;">
+      <b class="t">Base de données non configurée</b>
+      Pour activer ce panneau, suivez ces étapes :
+      <ol>
+        <li>Créez un projet gratuit sur <b>console.firebase.google.com</b>.</li>
+        <li>Activez <b>Realtime Database</b>, puis <b>Authentication → E-mail/Mot de passe</b>, et créez un utilisateur admin.</li>
+        <li>Dans Realtime Database → <b>Règles</b>, collez :<br>
+          <code>{ "rules": { ".read": true, ".write": "auth != null" } }</code></li>
+        <li>Copiez la configuration web dans <b>firebase-config.js</b> et mettez <b>FIREBASE_ENABLED = true</b>.</li>
+      </ol>
+    </div>
+    <form id="loginForm" onsubmit="return doLogin(event)">
+      <label>E-mail</label>
+      <input type="email" id="loginEmail" required autocomplete="username">
+      <label>Mot de passe</label>
+      <input type="password" id="loginPass" required autocomplete="current-password">
+      <button class="btn btn-gold" type="submit">Se connecter</button>
+      <div class="err" id="loginErr"></div>
+    </form>
+  </div>
+
+  <!-- ============ APPLICATION ============ -->
+  <div id="appView" style="display:none;">
+    <div class="admin-head">
+      <div>
+        <h1>Panneau d'administration</h1>
+        <p id="adminStore"></p>
+      </div>
+      <button class="btn btn-outline" onclick="logout()">Déconnexion</button>
+    </div>
+
+    <div class="tabs">
+      <button id="tabP" class="active" onclick="showTab('products')">Produits</button>
+      <button id="tabS" onclick="showTab('settings')">Réglages</button>
+    </div>
+
+    <div id="paneProducts"></div>
+
+    <div id="paneSettings" style="display:none;">
+      <div class="pcard">
+        <label>Nom de la boutique<input id="setName"></label>
+        <label>Numéro WhatsApp <span class="hint">(format international, ex : 212612345678 — c'est sur ce numéro qu'arrivent les commandes)</span>
+          <input id="setWa" inputmode="tel"></label>
+        <label>Texte de la barre d'annonce <span class="hint">(en haut du site)</span>
+          <textarea id="setAnn" rows="2"></textarea></label>
+        <div class="row3">
+          <label>Seuil livraison gratuite (DH)<input id="setFree" type="number" min="0"></label>
+          <label>Code promo<input id="setPromo"></label>
+          <label>Réduction (%)<input id="setPct" type="number" min="0" max="90"></label>
+        </div>
+        <h3 class="sect">Frais de livraison par ville (DH)</h3>
+        <div class="fee-grid" id="feeGrid" style="margin-top:0.6rem;"></div>
+      </div>
+    </div>
+
+    <div class="savebar">
+      <button class="btn btn-gold" id="saveBtn" onclick="saveAll()">Enregistrer</button>
+      <span id="saveMsg"></span>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="firebase-config.js"></script>
+<script src="img-1.js"></script>
+<script src="img-2.js"></script>
+<script src="img-3.js"></script>
+<script src="img-4.js"></script>
+<script src="img-5.js"></script>
+<script src="img-6.js"></script>
+<script src="img-7.js"></script>
+<script src="img-8.js"></script>
+<script src="img-9.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* ================= DONNÉES ================= */
+const $ = id => document.getElementById(id);
+const CATS = { baklawa: 'Baklawa & feuilletés', miel: 'Douceurs au miel', sables: 'Sablés & dattes', special: 'Spécialités' };
+const IMG_KEYS = [
+  ['baklawa-pistache','Baklawa pistaches'], ['baklawa-amandes','Baklawa amandes'],
+  ['samsa','Samsa amandes'], ['chebakia','Chebakia miel'], ['griwech','Griwech'],
+  ['makroud','Makroud dattes'], ['maamoul','Maamoul dattes'], ['kaab-el-ghazal','Kaab el Ghazal'],
+  ['djouzia','Djouzia noix'], ['mchewek','Mchewek'], ['tcharak','Tcharak'], ['knafeh','Knafeh']
+];
+const CITIES = ['Casablanca','Rabat','Marrakech','Agadir','Tanger','Fès','Meknès','Oujda','Autre ville'];
+
+const DEFAULT_SETTINGS = {
+  storeName: "Les Douceurs d'Orient",
+  whatsapp: '212600000000',
+  announcement: "🚚 Livraison <b>GRATUITE</b> dès 500 DH d'achat · 💵 Paiement à la livraison",
+  freeShipping: 500,
+  promoCode: 'BIENVENUE10',
+  promoPct: 10,
+  fees: { 'Casablanca': 25, 'Rabat': 35, 'Marrakech': 45, 'Agadir': 50,
+          'Tanger': 50, 'Fès': 40, 'Meknès': 40, 'Oujda': 55, 'Autre ville': 60 }
+};
+const DEFAULT_PRODUCTS = [
+  { id:'baklawa-pistache', name:'Baklawa aux pistaches', cat:'baklawa', img:'baklawa-pistache', badge:'best', rating:'★★★★★',
+    desc:"Feuilleté croustillant garni de pistaches concassées, nappé d'un sirop parfumé à la fleur d'oranger. Notre best-seller.",
+    prices:{'250g':75,'500g':140,'1kg':260} },
+  { id:'baklawa-amandes', name:'Baklawa aux amandes', cat:'baklawa', img:'baklawa-amandes', badge:'', rating:'★★★★★',
+    desc:"Fine pâte feuilletée aux amandes douces moulues, miel et cannelle. Un classique de la pâtisserie orientale.",
+    prices:{'250g':60,'500g':110,'1kg':200} },
+  { id:'samsa', name:'Samsa aux amandes', cat:'baklawa', img:'samsa', badge:'', rating:'★★★★☆',
+    desc:"Triangles dorés fourrés aux amandes, frits puis enrobés de miel et de sésame. Croustillants à souhait.",
+    prices:{'250g':50,'500g':90,'1kg':170} },
+  { id:'chebakia', name:'Chebakia au miel', cat:'miel', img:'chebakia', badge:'best', rating:'★★★★★',
+    desc:"Fleurs de pâte au sésame, frites et plongées dans le miel pur. La star des tables marocaines.",
+    prices:{'250g':35,'500g':60,'1kg':110} },
+  { id:'griwech', name:'Griwech', cat:'miel', img:'griwech', badge:'', rating:'★★★★☆',
+    desc:"Nœuds de pâte délicatement tressés, frits et généreusement enrobés de miel et de sésame.",
+    prices:{'250g':38,'500g':65,'1kg':120} },
+  { id:'makroud', name:'Makroud aux dattes', cat:'miel', img:'makroud', badge:'', rating:'★★★★☆',
+    desc:"Losanges de semoule fine fourrés à la pâte de dattes, frits et nappés de miel.",
+    prices:{'250g':40,'500g':70,'1kg':130} },
+  { id:'maamoul', name:"Maamoul aux dattes", cat:'sables', img:'maamoul', badge:'new', rating:'★★★★★',
+    desc:"Sablés fondants à la semoule, fourrés de dattes parfumées, décorés à la pince traditionnelle.",
+    prices:{'250g':45,'500g':80,'1kg':150} },
+  { id:'kaab-el-ghazal', name:'Kaab el Ghazal', cat:'sables', img:'kaab-el-ghazal', badge:'', rating:'★★★★★',
+    desc:"Célèbres cornes de gazelle à la pâte d'amande parfumée à la cannelle. Finesse et élégance.",
+    prices:{'250g':55,'500g':100,'1kg':190} },
+  { id:'djouzia', name:'Djouzia aux noix', cat:'sables', img:'djouzia', badge:'', rating:'★★★★☆',
+    desc:"Sablés moelleux aux noix, au bon goût de beurre. Ils fondent dans la bouche.",
+    prices:{'250g':60,'500g':110,'1kg':200} },
+  { id:'mchewek', name:'Mchewek', cat:'sables', img:'mchewek', badge:'', rating:'★★★★☆',
+    desc:"Boules d'amandes enrobées d'amandes effilées, dorées au four. Croquant et fondant à la fois.",
+    prices:{'250g':52,'500g':95,'1kg':180} },
+  { id:'tcharak', name:'Tcharak', cat:'sables', img:'tcharak', badge:'new', rating:'★★★★★',
+    desc:"Croissants sablés à la pâte d'amande, saupoudrés de sucre glace. Délicatesse pure.",
+    prices:{'250g':55,'500g':100,'1kg':190} },
+  { id:'knafeh', name:'Knafeh', cat:'special', img:'knafeh', badge:'best', rating:'★★★★★',
+    desc:"Cheveux d'ange croustillants sur cœur fondant au fromage, pistaches et sirop. À déguster tiède.",
+    prices:{'250g':50,'500g':90,'1kg':170} }
+];
+
+const state = { products: [], settings: {} };
+
+function imgSrc(n){ if(!n) return ""; if(/^https?:\/\//i.test(n) || n.indexOf('data:')===0) return n; return (window.IMGS||{})[n]||""; }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+let toastT;
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2400); }
+
+/* ================= AUTH ================= */
+window.addEventListener('DOMContentLoaded', () => {
+  if (!window.FIREBASE_ENABLED) {
+    $('setupNotice').style.display = 'block';
+    $('loginForm').style.display = 'none';
+    return;
+  }
+  try { firebase.initializeApp(window.FIREBASE_CONFIG); }
+  catch(e){ $('loginErr').textContent = 'Configuration Firebase invalide.'; return; }
+  firebase.auth().onAuthStateChanged(u => { u ? enterApp() : showLogin(); });
+});
+function showLogin(){ $('loginView').style.display='block'; $('appView').style.display='none'; }
+function doLogin(e){
+  e.preventDefault(); $('loginErr').textContent = '';
+  firebase.auth().signInWithEmailAndPassword($('loginEmail').value.trim(), $('loginPass').value)
+    .catch(err => { $('loginErr').textContent = 'Échec de connexion : vérifiez vos identifiants.'; });
+  return false;
+}
+function logout(){ firebase.auth().signOut(); }
+
+/* ================= CHARGEMENT ================= */
+async function enterApp(){
+  $('loginView').style.display='none'; $('appView').style.display='block';
+  let data = null;
+  try { const snap = await firebase.database().ref('/shop').get(); if (snap.exists()) data = snap.val(); } catch(e){}
+  const d = data || {}, ds = d.settings || {};
+  state.settings = Object.assign({}, DEFAULT_SETTINGS, ds);
+  state.settings.fees = Object.assign({}, DEFAULT_SETTINGS.fees, ds.fees || {});
+  state.products = (Array.isArray(d.products) && d.products.length)
+    ? d.products : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  $('adminStore').textContent = state.settings.storeName || '';
+  renderProducts(); renderSettings();
+}
+function showTab(name){
+  $('tabP').classList.toggle('active', name==='products');
+  $('tabS').classList.toggle('active', name==='settings');
+  $('paneProducts').style.display = name==='products' ? 'block' : 'none';
+  $('paneSettings').style.display = name==='settings' ? 'block' : 'none';
+}
+
+/* ================= PRODUITS ================= */
+function productCard(p, i){
+  const isUrl = /^https?:\/\//i.test(p.img||'');
+  return `<div class="pcard" data-id="${esc(p.id)}">
+    <div class="pcard-head"><b>Produit ${i+1}</b><button class="danger" onclick="delProduct(${i})">Supprimer</button></div>
+    <label>Nom<input data-f="name" value="${esc(p.name)}"></label>
+    <label>Description<textarea data-f="desc" rows="2">${esc(p.desc)}</textarea></label>
+    <div class="row2">
+      <label>Catégorie<select data-f="cat">${Object.keys(CATS).map(k=>
+        `<option value="${k}"${k===p.cat?' selected':''}>${CATS[k]}</option>`).join('')}</select></label>
+      <label>Badge<select data-f="badge">
+        <option value=""${!p.badge?' selected':''}>Aucun</option>
+        <option value="best"${p.badge==='best'?' selected':''}>Bestseller</option>
+        <option value="new"${p.badge==='new'?' selected':''}>Nouveau</option>
+      </select></label>
+    </div>
+    <div class="row3">
+      <label>Prix 250g (DH)<input data-f="p250" type="number" min="0" value="${p.prices['250g']||0}"></label>
+      <label>Prix 500g (DH)<input data-f="p500" type="number" min="0" value="${p.prices['500g']||0}"></label>
+      <label>Prix 1kg (DH)<input data-f="p1kg" type="number" min="0" value="${p.prices['1kg']||0}"></label>
+    </div>
+    <div class="imgrow">
+      <label>Image<select data-f="imgKey"><option value="">— Choisir —</option>${IMG_KEYS.map(([k,l])=>
+        `<option value="${k}"${!isUrl&&p.img===k?' selected':''}>${l}</option>`).join('')}</select></label>
+      <img class="pimg" alt="Aperçu">
+    </div>
+    <label>URL d'image personnalisée <span class="hint">(optionnel — remplace le choix ci-dessus)</span>
+      <input data-f="imgUrl" placeholder="https://…" value="${isUrl?esc(p.img):''}"></label>
+  </div>`;
+}
+function renderProducts(){
+  $('paneProducts').innerHTML = state.products.map((p,i)=>productCard(p,i)).join('') +
+    `<button class="btn btn-outline dashed" onclick="addProduct()">＋ Ajouter un produit</button>`;
+  document.querySelectorAll('.pcard').forEach(card => {
+    const sel = card.querySelector('[data-f="imgKey"]'),
+          url = card.querySelector('[data-f="imgUrl"]'),
+          prev = card.querySelector('.pimg');
+    const upd = () => { prev.src = imgSrc(url.value.trim() || sel.value); };
+    sel.onchange = upd; url.oninput = upd; upd();
+  });
+}
+function addProduct(){
+  state.products.push({ id:'p'+Date.now(), name:'', desc:'', cat:'baklawa',
+    badge:'', rating:'★★★★★', img:'', prices:{'250g':0,'500g':0,'1kg':0} });
+  renderProducts();
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+function delProduct(i){
+  if (!confirm('Supprimer ce produit ?')) return;
+  state.products.splice(i,1); renderProducts();
+}
+
+/* ================= RÉGLAGES ================= */
+function renderSettings(){
+  const s = state.settings;
+  $('setName').value = s.storeName || '';
+  $('setWa').value = s.whatsapp || '';
+  $('setAnn').value = s.announcement || '';
+  $('setFree').value = s.freeShipping || 0;
+  $('setPromo').value = s.promoCode || '';
+  $('setPct').value = s.promoPct || 0;
+  $('feeGrid').innerHTML = CITIES.map(c =>
+    `<label>${c}<input data-city="${c}" type="number" min="0" value="${(s.fees||{})[c]||0}"></label>`).join('');
+}
+
+/* ================= ENREGISTRER ================= */
+function saveAll(){
+  const products = [...document.querySelectorAll('.pcard')].map(card => {
+    const v = f => card.querySelector(`[data-f="${f}"]`).value;
+    const imgUrl = v('imgUrl').trim();
+    return {
+      id: card.dataset.id,
+      name: v('name').trim(),
+      desc: v('desc').trim(),
+      cat: v('cat'),
+      badge: v('badge'),
+      rating: '★★★★★',
+      img: imgUrl || v('imgKey'),
+      prices: { '250g': Math.max(0,+v('p250')||0), '500g': Math.max(0,+v('p500')||0), '1kg': Math.max(0,+v('p1kg')||0) }
+    };
+  });
+  if (products.some(p=>!p.name)) { toast('Chaque produit doit avoir un nom.'); return; }
+  if (products.some(p=>!p.img)) { toast('Chaque produit doit avoir une image.'); return; }
+  const fees = {};
+  document.querySelectorAll('#feeGrid input').forEach(inp => fees[inp.dataset.city] = Math.max(0,+inp.value||0));
+  const settings = {
+    storeName: $('setName').value.trim(),
+    whatsapp: $('setWa').value.replace(/\D/g,''),
+    announcement: $('setAnn').value,
+    freeShipping: Math.max(0,+$('setFree').value||0),
+    promoCode: $('setPromo').value.trim().toUpperCase(),
+    promoPct: Math.min(90, Math.max(0,+$('setPct').value||0)),
+    fees
+  };
+  $('saveBtn').disabled = true; $('saveMsg').textContent = '';
+  firebase.database().ref('/shop').set({ products, settings })
+    .then(() => { toast('Enregistré avec succès'); $('saveMsg').textContent = 'Enregistré ✓'; })
+    .catch(e => toast('Erreur : ' + e.message))
+    .finally(() => { $('saveBtn').disabled = false; });
+}
+</script>
+</body>
+</html>

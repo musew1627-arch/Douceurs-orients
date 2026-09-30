@@ -287,10 +287,10 @@
 </head>
 <body>
 
-<div class="announce">🚚 Livraison <b>GRATUITE</b> dès 500 DH d'achat · 💵 Paiement à la livraison</div>
+<div class="announce" id="announceBar">🚚 Livraison <b>GRATUITE</b> dès 500 DH d'achat · 💵 Paiement à la livraison</div>
 
 <nav>
-  <div class="logo">🍯 Les Douceurs <span>d'Orient</span></div>
+  <div class="logo" id="storeLogo">🍯 Les Douceurs <span>d'Orient</span></div>
   <div class="nav-links">
     <a href="#accueil">Accueil</a>
     <a href="#boutique">Boutique</a>
@@ -310,7 +310,7 @@
       <a class="btn btn-outline" href="#apropos">Notre savoir-faire</a>
     </div>
     <div class="hero-stats">
-      <div><b>12+</b><span>Pâtisseries artisanales</span></div>
+      <div><b id="statCount">12+</b><span>Pâtisseries artisanales</span></div>
       <div><b>4.9/5</b><span>Note de nos clients</span></div>
       <div><b>48h</b><span>Préparation &amp; envoi</span></div>
     </div>
@@ -350,11 +350,11 @@
 <div class="promo">
   <div class="promo-box">
     <div>
-      <h3>🎁 <span>-10%</span> sur votre première commande</h3>
+      <h3>🎁 <span id="promoPctLbl">-10%</span> sur votre première commande</h3>
       <p>Inscrivez-vous à notre newsletter et recevez votre code de bienvenue.</p>
     </div>
     <div class="promo-code" onclick="copyCode()" title="Cliquer pour copier">
-      <div><b>BIENVENUE10</b><small>Cliquez pour copier le code</small></div>
+      <div><b id="promoCodeLbl">BIENVENUE10</b><small>Cliquez pour copier le code</small></div>
       <span style="font-size:1.4rem;">📋</span>
     </div>
   </div>
@@ -388,7 +388,7 @@
 
 <section class="news">
   <h2 class="serif">Recevez nos nouveautés 🎁</h2>
-  <p>Nouvelles pâtisseries, offres privées et -10% sur votre première commande.</p>
+  <p>Nouvelles pâtisseries, offres privées et <span id="promoPctLbl2">-10%</span> sur votre première commande.</p>
   <form class="news-form" onsubmit="return subscribeNews(event)">
     <input type="email" id="newsEmail" placeholder="Votre adresse e-mail" required>
     <button class="btn" type="submit">Je m'inscris</button>
@@ -408,7 +408,7 @@
 <footer>
   <div class="foot-grid">
     <div>
-      <h4>🍯 Les Douceurs d'Orient</h4>
+      <h4 id="footBrand">🍯 Les Douceurs d'Orient</h4>
       <p>Pâtisseries orientales artisanales, préparées avec amour au Maroc.</p>
     </div>
     <div>
@@ -419,12 +419,12 @@
     </div>
     <div>
       <h4>Informations</h4>
-      <p>🚚 Livraison partout au Maroc<br>Gratuite dès 500 DH</p>
+      <p>🚚 Livraison partout au Maroc<br><span id="footShip">Gratuite dès 500 DH</span></p>
       <p>💵 Paiement à la livraison</p>
       <p>📞 Commandes via WhatsApp</p>
     </div>
   </div>
-  <div class="foot-bottom">© 2026 Les Douceurs d'Orient — Fait avec ♥ au Maroc</div>
+  <div class="foot-bottom">© 2026 <span id="footCopy">Les Douceurs d'Orient</span> — Fait avec ♥ au Maroc · <a href="admin.html" style="color:inherit;opacity:.55;text-decoration:none;">Admin</a></div>
 </footer>
 
 <!-- CART DRAWER -->
@@ -502,15 +502,28 @@
 
 <script>
 /* ============================================================
-   ⚙️ RÉGLAGES BOUTIQUE — بدلي هاد القيم بالقيم ديالك
+   ⚙️ RÉGLAGES BOUTIQUE — valeurs par défaut.
+   Le propriétaire peut les modifier depuis admin.html
+   (chargées alors depuis la base Firebase).
    ============================================================ */
-const WHATSAPP_NUMBER = '212600000000'; // ⚠️ رقم الواتساب اللي غيوصلو عليه الطلبات (مثال: '212612345678')
-const FREE_SHIPPING_FROM = 500; // التوصيل فابور من هاد المبلغ (بالدرهم)
-const PROMOS = { 'BIENVENUE10': 0.10 }; // كودات التخفيض: الكود -> نسبة التخفيض
-const SHIPPING = { // ثمن التوصيل حسب المدينة (بالدرهم)
-  'Casablanca': 25, 'Rabat': 35, 'Marrakech': 45, 'Agadir': 50,
-  'Tanger': 50, 'Fès': 40, 'Meknès': 40, 'Oujda': 55, 'Autre ville': 60
+const DEFAULT_SETTINGS = {
+  storeName: "Les Douceurs d'Orient",
+  whatsapp: '212600000000', // ⚠️ رقم الواتساب اللي غيوصلو عليه الطلبات (مثال: '212612345678')
+  announcement: "🚚 Livraison <b>GRATUITE</b> dès 500 DH d'achat · 💵 Paiement à la livraison",
+  freeShipping: 500, // التوصيل فابور من هاد المبلغ (بالدرهم)
+  promoCode: 'BIENVENUE10',
+  promoPct: 10, // نسبة التخفيض %
+  fees: { // ثمن التوصيل حسب المدينة (بالدرهم)
+    'Casablanca': 25, 'Rabat': 35, 'Marrakech': 45, 'Agadir': 50,
+    'Tanger': 50, 'Fès': 40, 'Meknès': 40, 'Oujda': 55, 'Autre ville': 60
+  }
 };
+let WHATSAPP_NUMBER = DEFAULT_SETTINGS.whatsapp;
+let FREE_SHIPPING_FROM = DEFAULT_SETTINGS.freeShipping;
+let PROMOS = { [DEFAULT_SETTINGS.promoCode]: DEFAULT_SETTINGS.promoPct / 100 };
+let SHIPPING = Object.assign({}, DEFAULT_SETTINGS.fees);
+let STORE_NAME = DEFAULT_SETTINGS.storeName;
+let ANNOUNCEMENT = DEFAULT_SETTINGS.announcement;
 const CATS = { baklawa: 'Baklawa & feuilletés', miel: 'Douceurs au miel', sables: 'Sablés & dattes', special: 'Spécialités' };
 const WEIGHTS = ['250g', '500g', '1kg'];
 
@@ -518,7 +531,7 @@ const WEIGHTS = ['250g', '500g', '1kg'];
    🍯 PRODUITS — زيدي/بدلي المنتجات هنا
    badge: 'best' (الأكثر مبيعا) ولا 'new' (جديد) ولا خليه خاوي ''
    ============================================================ */
-const PRODUCTS = [
+const DEFAULT_PRODUCTS = [
   { id:'baklawa-pistache', name:'Baklawa aux pistaches', cat:'baklawa', img:'baklawa-pistache', badge:'best', rating:'★★★★★',
     desc:"Feuilleté croustillant garni de pistaches concassées, nappé d'un sirop parfumé à la fleur d'oranger. Notre best-seller.",
     prices:{'250g':75,'500g':140,'1kg':260} },
@@ -556,6 +569,7 @@ const PRODUCTS = [
     desc:"Cheveux d'ange croustillants sur cœur fondant au fromage, pistaches et sirop. À déguster tiède.",
     prices:{'250g':50,'500g':90,'1kg':170} },
 ];
+let PRODUCTS = DEFAULT_PRODUCTS;
 </script>
 
 <script src="img-1.js"></script>
@@ -567,8 +581,11 @@ const PRODUCTS = [
 <script src="img-7.js"></script>
 <script src="img-8.js"></script>
 <script src="img-9.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
 <script>
-function imgSrc(n){return (window.IMGS||{})[n]||"";}
+function imgSrc(n){ if(!n) return ""; if(/^https?:\/\//i.test(n) || n.indexOf('data:')===0) return n; return (window.IMGS||{})[n]||""; }
 /* ---------- STATE ---------- */
 let cart = [];
 try { cart = JSON.parse(localStorage.getItem('do_cart') || '[]'); } catch(e) { cart = []; }
@@ -592,7 +609,7 @@ function render() {
         ${p.badge ? BADGE[p.badge] : ''}
       </div>
       <div class="info">
-        <div class="cat">${CATS[p.cat]}</div>
+        <div class="cat">${CATS[p.cat]||p.cat}</div>
         <h3>${p.name}</h3>
         <div class="stars">${p.rating}</div>
         <div class="price">à partir de ${fmt(p.prices['250g'])} <small>/ 250g</small></div>
@@ -613,7 +630,7 @@ function openProduct(id) {
   pmProduct = PRODUCTS.find(p => p.id === id);
   pmWeight = '500g'; pmQty = 1;
   $('pmImg').src = imgSrc(pmProduct.img);
-  $('pmCat').textContent = CATS[pmProduct.cat];
+  $('pmCat').textContent = CATS[pmProduct.cat]||pmProduct.cat;
   $('pmName').textContent = pmProduct.name;
   $('pmStars').textContent = pmProduct.rating + ' · Avis clients';
   $('pmDesc').textContent = pmProduct.desc;
@@ -757,7 +774,7 @@ function submitOrder() {
     return `• ${p.name} (${i.weight}) × ${i.qty} = ${p.prices[i.weight]*i.qty} DH`;
   });
   const msg =
-`🍯 *Nouvelle commande — Les Douceurs d'Orient*
+`🍯 *Nouvelle commande — ${STORE_NAME}*
 ━━━━━━━━━━━━
 ${lines.join('\n')}
 ━━━━━━━━━━━━
@@ -779,9 +796,11 @@ Livraison (${city}): ${ship === 0 ? 'Gratuite' : fmt(ship)}
 }
 
 /* ---------- MISC ---------- */
+function activePromoCode(){ return Object.keys(PROMOS)[0] || ''; }
 function copyCode() {
-  const done = () => toast('📋 Code BIENVENUE10 copié !');
-  if (navigator.clipboard) navigator.clipboard.writeText('BIENVENUE10').then(done).catch(done);
+  const c = activePromoCode();
+  const done = () => toast('📋 Code ' + c + ' copié !');
+  if (navigator.clipboard) navigator.clipboard.writeText(c).then(done).catch(done);
   else done();
 }
 function subscribeNews(e) {
@@ -789,7 +808,7 @@ function subscribeNews(e) {
   const em = $('newsEmail').value.trim();
   if (!em) return false;
   $('newsEmail').value = '';
-  toast('🎁 Merci ! Votre code : BIENVENUE10 (-10%)');
+  toast('🎁 Merci ! Votre code : ' + activePromoCode() + ' (-' + Math.round((PROMOS[activePromoCode()]||0)*100) + '%)');
   return false;
 }
 function closeAll() {
@@ -806,13 +825,53 @@ function toast(t) {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
 
+/* ---------- FIREBASE : chargement boutique (admin) ---------- */
+function applyShopData(data){
+  const s = data.settings || {};
+  if (s.storeName) STORE_NAME = String(s.storeName);
+  if (s.whatsapp) WHATSAPP_NUMBER = String(s.whatsapp).replace(/\D/g,'') || WHATSAPP_NUMBER;
+  if (s.announcement) ANNOUNCEMENT = String(s.announcement);
+  if (s.freeShipping) FREE_SHIPPING_FROM = Number(s.freeShipping) || FREE_SHIPPING_FROM;
+  if (s.promoCode) PROMOS = { [String(s.promoCode).toUpperCase()]: (Number(s.promoPct)||0)/100 };
+  if (s.fees && typeof s.fees === 'object') SHIPPING = s.fees;
+  if (Array.isArray(data.products) && data.products.length) PRODUCTS = data.products;
+}
+function applySettingsToDom(){
+  $('announceBar').innerHTML = ANNOUNCEMENT;
+  $('storeLogo').textContent = '🍯 ' + STORE_NAME;
+  const pc = activePromoCode(), pct = Math.round((PROMOS[pc]||0)*100);
+  $('promoCodeLbl').textContent = pc;
+  $('promoPctLbl').textContent = '-' + pct + '%';
+  $('promoPctLbl2').textContent = '-' + pct + '%';
+  $('promoInput').placeholder = 'Code promo (ex: ' + pc + ')';
+  $('footBrand').textContent = '🍯 ' + STORE_NAME;
+  $('footShip').textContent = 'Gratuite dès ' + FREE_SHIPPING_FROM + ' DH';
+  $('footCopy').textContent = STORE_NAME;
+  $('statCount').textContent = PRODUCTS.length + '+';
+}
+
 /* ---------- INIT ---------- */
-const cityOpts = '<option value="">— Ville de livraison —</option>' +
-  Object.keys(SHIPPING).map(c => `<option>${c}</option>`).join('');
-$('citySelect').innerHTML = cityOpts;
-updateBadge();
-$('heroImg').src = imgSrc('baklawa-pistache');
-render();
+async function init(){
+  try {
+    const cfg = window.FIREBASE_CONFIG;
+    if (window.FIREBASE_ENABLED && cfg && cfg.apiKey && cfg.apiKey !== 'PASTE_HERE' && window.firebase) {
+      firebase.initializeApp(cfg);
+      const snap = await firebase.database().ref('/shop').get();
+      if (snap.exists()) applyShopData(snap.val());
+    }
+  } catch(e) { /* mode démo : on garde les valeurs par défaut */ }
+  cart = cart.filter(i => PRODUCTS.some(p => p.id === i.id));
+  save();
+  applySettingsToDom();
+  $('citySelect').innerHTML = '<option value="">— Ville de livraison —</option>' +
+    Object.keys(SHIPPING).map(c => `<option>${c}</option>`).join('');
+  updateBadge();
+  const heroP = PRODUCTS[0];
+  $('heroImg').src = imgSrc(heroP && heroP.img);
+  $('heroImg').alt = heroP ? heroP.name : '';
+  render();
+}
+init();
 </script>
 </body>
 </html>
