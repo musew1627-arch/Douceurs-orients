@@ -316,7 +316,7 @@
     </div>
   </div>
   <div class="hero-visual">
-    <img src="images/baklawa-pistache.jpg" alt="Baklawa aux pistaches">
+    <img id="heroImg" alt="Baklawa aux pistaches">
     <div class="float-card fc1"><span class="stars">★★★★★</span> 4.9/5 · 300+ avis</div>
     <div class="float-card fc2">👩‍🍳 100% fait maison</div>
   </div>
@@ -558,7 +558,17 @@ const PRODUCTS = [
 ];
 </script>
 
+<script src="img-1.js"></script>
+<script src="img-2.js"></script>
+<script src="img-3.js"></script>
+<script src="img-4.js"></script>
+<script src="img-5.js"></script>
+<script src="img-6.js"></script>
+<script src="img-7.js"></script>
+<script src="img-8.js"></script>
+<script src="img-9.js"></script>
 <script>
+function imgSrc(n){return (window.IMGS||{})[n]||"";}
 /* ---------- STATE ---------- */
 let cart = [];
 try { cart = JSON.parse(localStorage.getItem('do_cart') || '[]'); } catch(e) { cart = []; }
@@ -578,7 +588,7 @@ function render() {
   $('grid').innerHTML = list.map((p, i) => `
     <div class="card" style="animation-delay:${Math.min(i*0.05, 0.4)}s" onclick="openProduct('${p.id}')">
       <div class="imgwrap">
-        <img src="${p.img}" alt="${p.name}" loading="lazy">
+        <img src="${imgSrc(p.img)}" alt="${p.name}" loading="lazy">
         ${p.badge ? BADGE[p.badge] : ''}
       </div>
       <div class="info">
@@ -602,7 +612,7 @@ $('search').addEventListener('input', render);
 function openProduct(id) {
   pmProduct = PRODUCTS.find(p => p.id === id);
   pmWeight = '500g'; pmQty = 1;
-  $('pmImg').src = pmProduct.img;
+  $('pmImg').src = imgSrc(pmProduct.img);
   $('pmCat').textContent = CATS[pmProduct.cat];
   $('pmName').textContent = pmProduct.name;
   $('pmStars').textContent = pmProduct.rating + ' · Avis clients';
@@ -656,7 +666,7 @@ function renderCart() {
   box.innerHTML = cart.map((i, idx) => {
     const p = PRODUCTS.find(p => p.id === i.id);
     return `<div class="citem">
-      <img src="${p.img}" alt="">
+      <img src="${imgSrc(p.img)}" alt="">
       <div class="mid">
         <b>${p.name}</b><small>${i.weight} · ${fmt(p.prices[i.weight])}</small>
         <div class="qty">
@@ -801,6 +811,7 @@ const cityOpts = '<option value="">— Ville de livraison —</option>' +
   Object.keys(SHIPPING).map(c => `<option>${c}</option>`).join('');
 $('citySelect').innerHTML = cityOpts;
 updateBadge();
+$('heroImg').src = imgSrc('baklawa-pistache');
 render();
 </script>
 </body>
