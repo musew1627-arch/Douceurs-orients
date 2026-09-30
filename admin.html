@@ -353,23 +353,25 @@ function saveAll(){
   try {
     const cards = [...document.querySelectorAll('.pcard')];
     if (!cards.length) { done(false, 'Aucun produit affiche. Rechargez la page.'); return; }
-    const products = cards.map(card => {
-      const q = f => card.querySelector('[data-f="' + f + '"]');
-      const val = f => { const el = q(f); if (!el) throw new Error('Champ manquant: ' + f); return el.value; };
-      const imgUrl = val('imgUrl').trim();
+    const get = (card, f) => { const el = card.querySelector('[data-f="' + f + '"]'); return el ? el.value : ''; };
+    const products = cards.map((card, idx) => {
+      const v = f => get(card, f);
+      const imgUrl = v('imgUrl').trim();
+      const name = v('name').trim();
+      if (!name) throw new Error('Produit ' + (idx+1) + ' : nom manquant.');
+      const img = imgUrl || v('imgKey');
+      if (!img) throw new Error('Produit ' + (idx+1) + ' : image manquante.');
       return {
-        id: card.dataset.id,
-        name: val('name').trim(),
-        desc: val('desc').trim(),
-        cat: val('cat'),
-        badge: val('badge'),
+        id: card.dataset.id || ('p' + idx),
+        name: name,
+        desc: v('desc').trim(),
+        cat: v('cat') || 'baklawa',
+        badge: v('badge'),
         rating: '\u2605\u2605\u2605\u2605\u2605',
-        img: imgUrl || val('imgKey'),
-        prices: { '250g': Math.max(0,+val('p250')||0), '500g': Math.max(0,+val('p500')||0), '1kg': Math.max(0,+val('p1kg')||0) }
+        img: img,
+        prices: { '250g': Math.max(0,+v('p250')||0), '500g': Math.max(0,+v('p500')||0), '1kg': Math.max(0,+v('p1kg')||0) }
       };
     });
-    if (products.some(p=>!p.name)) { done(false, 'Chaque produit doit avoir un nom.'); return; }
-    if (products.some(p=>!p.img)) { done(false, 'Chaque produit doit avoir une image.'); return; }
     const fees = {};
     document.querySelectorAll('#feeGrid input').forEach(inp => fees[inp.dataset.city] = Math.max(0,+inp.value||0));
     const settings = {
