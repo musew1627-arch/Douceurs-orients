@@ -309,7 +309,7 @@ function productCard(p, i){
 function renderProducts(){
   $('paneProducts').innerHTML = state.products.map((p,i)=>productCard(p,i)).join('') +
     `<button class="btn btn-outline dashed" onclick="addProduct()">＋ Ajouter un produit</button>`;
-  document.querySelectorAll('.pcard').forEach(card => {
+  document.querySelectorAll('#paneProducts .pcard').forEach(card => {
     const sel = card.querySelector('[data-f="imgKey"]'),
           url = card.querySelector('[data-f="imgUrl"]'),
           prev = card.querySelector('.pimg');
@@ -351,7 +351,7 @@ function saveAll(){
     if (ok) $('saveMsg').textContent = 'Enregistre \u2713';
   };
   try {
-    const cards = [...document.querySelectorAll('.pcard')];
+    const cards = [...document.querySelectorAll('#paneProducts .pcard')];
     if (!cards.length) { done(false, 'Aucun produit affiche. Rechargez la page.'); return; }
     const get = (card, f) => { const el = card.querySelector('[data-f="' + f + '"]'); return el ? el.value : ''; };
     const products = cards.map((card, idx) => {
